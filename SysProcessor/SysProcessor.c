@@ -13,9 +13,9 @@ DWORD SetSystemClock( void )
     SysCtlClockSet(SYSCTL_SYSDIV_3 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
     g_ulSystemClock = SysCtlClockGet();
 #elif   PART_TM4C1294NCPDT
-    g_ulSystemClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
+    g_ulSystemClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ  |
                                              SYSCTL_OSC_MAIN |
-                                             SYSCTL_USE_PLL |
+                                             SYSCTL_USE_PLL  |
                                              SYSCTL_CFG_VCO_480), 120000000);
 #endif
     return g_ulSystemClock;
