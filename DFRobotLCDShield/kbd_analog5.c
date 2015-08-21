@@ -25,9 +25,61 @@
 
 //-----------------------------------------------------------------------------
 
+#define KB_AN_RIGHTKEY_UPPER_LIMIT          (0)
+#define KB_AN_RIGHTKEY_LOWER_LIMIT          (100)
+#define KB_AN_UPKEY_UPPER_LIMIT             (0)
+#define KB_AN_UPKEY_LOWER_LIMIT             (100)
+#define KB_AN_DOWNKEY_UPPER_LIMIT           (0)
+#define KB_AN_DOWNKEY_LOWER_LIMIT           (100)
+#define KB_AN_LEFTKEY_UPPER_LIMIT           (0)
+#define KB_AN_LEFTKEY_LOWER_LIMIT           (100)
+#define KB_AN_SELKEY_UPPER_LIMIT            (0)
+#define KB_AN_SELKEY_LOWER_LIMIT            (100)
+
+//-----------------------------------------------------------------------------
+
+struct _KbAnLimits
+{
+    uint16_t wUpperLimit;
+    uint16_t wLowerLimit;
+};
+
+const struct _KbAnLimits kbAnLimits[] = 
+{
+    [KB_AN_RIGHT] = 
+    {
+        .wUpperLimit = KB_AN_RIGHTKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_RIGHTKEY_LOWER_LIMIT,
+    },
+
+    [KB_AN_UP] = 
+    {
+        .wUpperLimit = KB_AN_UPKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_UPKEY_LOWER_LIMIT,
+    },
+    
+    [KB_AN_DOWN] = 
+    {
+        .wUpperLimit = KB_AN_DOWNKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_DOWNKEY_LOWER_LIMIT,
+    },
+
+    [KB_AN_LEFT] = 
+    {
+        .wUpperLimit = KB_AN_LEFTKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_LEFTKEY_LOWER_LIMIT,
+    },
+
+    [KB_AN_SELECT] = 
+    {
+        .wUpperLimit = KB_AN_SELECTKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_SELECTKEY_LOWER_LIMIT,
+    },
+};
+
 static uint8_t  bInit = 0;          //! initialization variable
 static uint32_t dwKbAnHandle = 0;   //!   
-static uint16_t wAnalogKbValue = 0; //! 
+static uint32_t dwAnalogKbValue = 0; //! 
 
 //-----------------------------------------------------------------------------
 
@@ -109,6 +161,43 @@ uint32_t ReadKbAnTask( void* pParam )
     
     switch( bKbAnState )
     {
+        case 0:
+        {
+            ADCIntClear(KB_AN_ADC_BASE, KB_AN_ADC_SEQUENCE);
+            ADCProcessorTrigger(KB_AN_ADC_BASE, KB_AN_ADC_SEQUENCE);
+            
+            bKbAnState = 1;
+        }
+        break;
+            
+        case 1:
+        {
+            bKbAnState = 1;
+            if ( ADCIntStatus(KB_AN_ADC_BASE, KB_AN_ADC_SEQUENCE, false) )
+            {
+                bKbAnState = 2;
+            }                 
+        }
+        break;
+        
+        case 2:
+        {
+            ADCSequenceDataGet(KB_AN_ADC_BASE, KB_AN_ADC_SEQUENCE, &dwADCValue);
+            bKbAnState = 3;
+        }
+        break;
+        
+        case 3:
+        {
+            dwAnalogKbValue = dwADCValue;
+            bKbAnState = 0;
+        }
+        break;
+        
+        default:
+            bKbAnState = 0;
+            break;
+      
     }
     
     return 0;

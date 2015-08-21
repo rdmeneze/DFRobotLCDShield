@@ -6,7 +6,7 @@
 
 typedef enum 
 {
-    KB_AN_RIGHT = 1,
+    KB_AN_RIGHT ,
     KB_AN_UP    ,
     KB_AN_DOWN  ,
     KB_AN_LEFT  ,
