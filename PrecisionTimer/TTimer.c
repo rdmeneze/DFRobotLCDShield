@@ -309,3 +309,38 @@ DWORD TTimerRestart( DWORD dwHandle )
 }
 
 /*----------------------------------------------------------------------------*/        
+
+DWORD TTimerSetTime( DWORD dwHandle, DWORD dwNewDelay )
+{
+    int i;
+    int count;
+    struct STTimer* pTTimer;
+    
+    if ( dwNewDelay < dwTimerTimeBase )
+    {
+      dwNewDelay = dwTimerTimeBase;
+    }
+    
+    count = (DWORD)((dwNewDelay / (float)dwTimerTimeBase) + 0.5f);    
+    
+    
+    for ( i = 0, pTTimer = stCBTimer; i < GET_ARRAY_LEN( stCBTimer ); i++, pTTimer++ )
+    {
+        if ( pTTimer->dwHandle == dwHandle )
+        {
+            pTTimer->bStarted  = 0;
+            pTTimer->iReloadValue = count;
+            pTTimer->iCount = pTTimer->iReloadValue;
+            break;
+        }
+    }
+    
+    if ( i == GET_ARRAY_LEN( stCBTimer ) )
+    {
+        return (DWORD)-1;
+    }
+    
+    return 0;    
+}
+
+/*----------------------------------------------------------------------------*/        

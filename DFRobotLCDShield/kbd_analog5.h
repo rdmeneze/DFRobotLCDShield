@@ -38,7 +38,7 @@ KB_AN_STATUS_t KbAnInit( void );
  *  @return KB_AN_ST_OK    initialization OK
  *  @return KB_AN_ST_ERROR initialization ERROR
  */
-KB_AN KbAnRead( KB_AN key );
+uint8_t KbAnReadKey( KB_AN key );
 
 /**
  *  @brief  read the key value

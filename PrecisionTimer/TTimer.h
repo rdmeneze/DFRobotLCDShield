@@ -81,4 +81,6 @@ DWORD TTimerStop( DWORD dwHandle );
  */
 DWORD TTimerRestart( DWORD dwHandle );
 
+DWORD TTimerSetTime( DWORD dwHandle, DWORD dwNewDelay );
+
 #endif

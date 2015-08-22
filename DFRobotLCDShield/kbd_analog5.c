@@ -10,6 +10,7 @@
 #include <driverlib/gpio.h>
 #include <driverlib/adc.h>
 
+
 //-----------------------------------------------------------------------------
 
 #define KB_AN_ADC_SYSCTL   (SYSCTL_PERIPH_ADC0)
@@ -21,20 +22,30 @@
 #define KB_AN_GPIO_BASE    (GPIO_PORTD_BASE)
 #define KB_AN_GPIO_PIN     (GPIO_PIN_7)
 
-#define KB_AN_TIMER        (50*TTIMER_1MS_INTERVAL)
+#define KB_AN_TIMER        (2*TTIMER_1MS_INTERVAL)
 
 //-----------------------------------------------------------------------------
 
-#define KB_AN_RIGHTKEY_UPPER_LIMIT          (0)
-#define KB_AN_RIGHTKEY_LOWER_LIMIT          (100)
-#define KB_AN_UPKEY_UPPER_LIMIT             (0)
-#define KB_AN_UPKEY_LOWER_LIMIT             (100)
-#define KB_AN_DOWNKEY_UPPER_LIMIT           (0)
-#define KB_AN_DOWNKEY_LOWER_LIMIT           (100)
-#define KB_AN_LEFTKEY_UPPER_LIMIT           (0)
-#define KB_AN_LEFTKEY_LOWER_LIMIT           (100)
-#define KB_AN_SELKEY_UPPER_LIMIT            (0)
-#define KB_AN_SELKEY_LOWER_LIMIT            (100)
+/* Key values
+    Select 	: 3380
+    Left	: 2500
+    Down	: 1570
+    Up		: 620
+    Right	: 0
+*/
+
+#define KB_AN_RIGHTKEY_UPPER_LIMIT          (100)
+#define KB_AN_RIGHTKEY_LOWER_LIMIT          (0)
+#define KB_AN_UPKEY_UPPER_LIMIT             (620+100)
+#define KB_AN_UPKEY_LOWER_LIMIT             (620-100)
+#define KB_AN_DOWNKEY_UPPER_LIMIT           (1570+100)
+#define KB_AN_DOWNKEY_LOWER_LIMIT           (1570-100)
+#define KB_AN_LEFTKEY_UPPER_LIMIT           (2500+100)
+#define KB_AN_LEFTKEY_LOWER_LIMIT           (2500-100)
+#define KB_AN_SELKEY_UPPER_LIMIT            (3380+100)
+#define KB_AN_SELKEY_LOWER_LIMIT            (3380-100)
+#define KB_AN_NONE_UPPER_LIMIT              (4095)   
+#define KB_AN_NONE_LOWER_LIMIT              (4095-100)
 
 //-----------------------------------------------------------------------------
 
@@ -72,9 +83,16 @@ const struct _KbAnLimits kbAnLimits[] =
 
     [KB_AN_SELECT] = 
     {
-        .wUpperLimit = KB_AN_SELECTKEY_UPPER_LIMIT,
-        .wLowerLimit = KB_AN_SELECTKEY_LOWER_LIMIT,
+        .wUpperLimit = KB_AN_SELKEY_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_SELKEY_LOWER_LIMIT,
     },
+
+    [KB_AN_NONE] = 
+    {
+        .wUpperLimit = KB_AN_NONE_UPPER_LIMIT,
+        .wLowerLimit = KB_AN_NONE_LOWER_LIMIT,
+    },
+    
 };
 
 static uint8_t  bInit = 0;          //! initialization variable
@@ -83,13 +101,14 @@ static uint32_t dwAnalogKbValue = 0; //!
 
 //-----------------------------------------------------------------------------
 
+//! task to read the analog input
 uint32_t ReadKbAnTask( void* pParam );
 
 //-----------------------------------------------------------------------------
 
 KB_AN_STATUS_t KbAnInit( void )
 {
-    KB_AN_STATUS_t  xRet = 0;
+    KB_AN_STATUS_t  xRet = KB_AN_ST_OK;
     uint32_t        dwRet = 0;
     
     if ( bInit == 0 )
@@ -136,11 +155,33 @@ KB_AN_STATUS_t KbAnInit( void )
 
 //-----------------------------------------------------------------------------
 
-KB_AN KbAnRead( KB_AN key )
+uint8_t KbAnReadKey( KB_AN key )
 {
-    KB_AN xRetKb = KB_AN_NONE;
+    uint8_t bRetKb=0;
     
-    return xRetKb;
+    switch( key )
+    {
+        case KB_AN_RIGHT :
+        case KB_AN_UP    :
+        case KB_AN_DOWN  :
+        case KB_AN_LEFT  :
+        case KB_AN_SELECT:
+        {
+            if ( (dwAnalogKbValue > kbAnLimits[key].wLowerLimit) && (dwAnalogKbValue <= kbAnLimits[key].wUpperLimit))
+            {
+                bRetKb = 1;
+            }
+        }
+        break;
+        
+        default:
+        {
+            bRetKb = 0;
+        }
+        break;
+    }
+    
+    return bRetKb;
 }
 
 //-----------------------------------------------------------------------------
