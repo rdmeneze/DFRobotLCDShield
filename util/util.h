@@ -78,5 +78,12 @@ inline DWORD MAKEDWORD( WORD wLow,  WORD wHigh );
 inline BYTE BCDtoDec( BYTE bBCD );
 inline BYTE DectoBCD( BYTE bDec );
 
+/**
+ *  \brief  wait ms
+ *  \param  ms time to wait
+ */
+void delay( int ms );
+
+
 
 #endif //~ __UTIL_H__
