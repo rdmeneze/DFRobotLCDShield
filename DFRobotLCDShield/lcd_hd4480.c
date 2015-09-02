@@ -12,6 +12,24 @@
 #include <driverlib/gpio.h>
 #include <inc/hw_memmap.h>
 
+// When the display powers up, it is configured as follows:
+//
+// 1. Display clear
+// 2. Function set: 
+//    DL = 1; 8-bit interface data 
+//    N = 0; 1-line display 
+//    F = 0; 5x8 dot character font 
+// 3. Display on/off control: 
+//    D = 0; Display off 
+//    C = 0; Cursor off 
+//    B = 0; Blinking off 
+// 4. Entry mode set: 
+//    I/D = 1; Increment by 1 
+//    S = 0; No shift 
+//
+// Note, however, that resetting the hardware doesn't reset the LCD, so we
+// can't assume that its in that state
+
 
 //-----------------------------------------------------------------------------
 
@@ -53,6 +71,12 @@ typedef enum
     LCD_EN,     //! EN
     LCD_BK,     //! BK
 } PIN_LCD;
+
+typedef enum 
+{
+    CMD,
+    DATA
+}RS_TYPE;
 
 //-----------------------------------------------------------------------------
 
@@ -119,76 +143,159 @@ const struct STGpioConfig stGpioLcdCfg[] =
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480DbWrite( uint8_t bData )
+void Lcd4480WriteDB7( uint8_t bData )
 {
-    if ( bData & (1<<7))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB7].dwBASE, stGpioLcdCfg[LCD_DB7].dwPin, stGpioLcdCfg[LCD_DB7].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB7].dwBASE, stGpioLcdCfg[LCD_DB7].dwPin, ~stGpioLcdCfg[LCD_DB7].dwPin );
-    }
+    const PIN_LCD pin = LCD_DB7;
     
-    if ( bData & (1<<6))
+    if ( bData )
     {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB6].dwBASE, stGpioLcdCfg[LCD_DB6].dwPin, stGpioLcdCfg[LCD_DB6].dwPin );
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, stGpioLcdCfg[pin].dwPin );
     }
     else
     {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB6].dwBASE, stGpioLcdCfg[LCD_DB6].dwPin, ~stGpioLcdCfg[LCD_DB6].dwPin );
-    }
-    if ( bData & (1<<5))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB5].dwBASE, stGpioLcdCfg[LCD_DB5].dwPin, stGpioLcdCfg[LCD_DB5].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB5].dwBASE, stGpioLcdCfg[LCD_DB5].dwPin, ~stGpioLcdCfg[LCD_DB5].dwPin );
-    }
-    if ( bData & (1<<4))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB4].dwBASE, stGpioLcdCfg[LCD_DB4].dwPin, stGpioLcdCfg[LCD_DB4].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB4].dwBASE, stGpioLcdCfg[LCD_DB4].dwPin, ~stGpioLcdCfg[LCD_DB4].dwPin );
-    }
-    if ( bData & (1<<7))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB7].dwBASE, stGpioLcdCfg[LCD_DB7].dwPin, stGpioLcdCfg[LCD_DB7].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB7].dwBASE, stGpioLcdCfg[LCD_DB7].dwPin, ~stGpioLcdCfg[LCD_DB7].dwPin );
-    }
-    
-    if ( bData & (1<<6))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB6].dwBASE, stGpioLcdCfg[LCD_DB6].dwPin, stGpioLcdCfg[LCD_DB6].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB6].dwBASE, stGpioLcdCfg[LCD_DB6].dwPin, ~stGpioLcdCfg[LCD_DB6].dwPin );
-    }
-    if ( bData & (1<<5))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB5].dwBASE, stGpioLcdCfg[LCD_DB5].dwPin, stGpioLcdCfg[LCD_DB5].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB5].dwBASE, stGpioLcdCfg[LCD_DB5].dwPin, ~stGpioLcdCfg[LCD_DB5].dwPin );
-    }
-    if ( bData & (1<<4))
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB4].dwBASE, stGpioLcdCfg[LCD_DB4].dwPin, stGpioLcdCfg[LCD_DB4].dwPin );
-    }
-    else
-    {
-        GPIOPinWrite( stGpioLcdCfg[LCD_DB4].dwBASE, stGpioLcdCfg[LCD_DB4].dwPin, ~stGpioLcdCfg[LCD_DB4].dwPin );
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, ~stGpioLcdCfg[pin].dwPin ); 
     }    
     
     return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteDB6( uint8_t bData )
+{
+    const PIN_LCD pin = LCD_DB6;
+    
+    if ( bData )
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, stGpioLcdCfg[pin].dwPin );
+    }
+    else
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, ~stGpioLcdCfg[pin].dwPin ); 
+    }    
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteDB5( uint8_t bData )
+{
+    const PIN_LCD pin = LCD_DB5;
+    
+    if ( bData )
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, stGpioLcdCfg[pin].dwPin );
+    }
+    else
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, ~stGpioLcdCfg[pin].dwPin ); 
+    }    
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteDB4( uint8_t bData )
+{
+    const PIN_LCD pin = LCD_DB4;
+    
+    if ( bData )
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, stGpioLcdCfg[pin].dwPin );
+    }
+    else
+    {
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, ~stGpioLcdCfg[pin].dwPin ); 
+    }    
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteEN( uint8_t bData )
+{
+    if ( bData )
+    {
+        GPIOPinWrite( stGpioLcdCfg[LCD_EN].dwBASE,stGpioLcdCfg[LCD_EN].dwPin, stGpioLcdCfg[LCD_EN].dwPin );
+    }
+    else
+    {
+        GPIOPinWrite( stGpioLcdCfg[LCD_EN].dwBASE,stGpioLcdCfg[LCD_EN].dwPin, ~stGpioLcdCfg[LCD_EN].dwPin ); 
+    }
+    
+    return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480PulseEN( void )
+{
+    Lcd4480WriteEN(1);
+    Lcd4480WriteEN(0);
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteRS( RS_TYPE rs )
+{
+    switch( rs )
+    {
+        case CMD:
+            GPIOPinWrite( stGpioLcdCfg[LCD_RS].dwBASE,stGpioLcdCfg[LCD_RS].dwPin, ~stGpioLcdCfg[LCD_RS].dwPin );
+        break;
+    
+        case DATA:
+        default:
+            GPIOPinWrite( stGpioLcdCfg[LCD_RS].dwBASE,stGpioLcdCfg[LCD_RS].dwPin, stGpioLcdCfg[LCD_RS].dwPin );
+        break;
+    }
+
+    return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480DbWrite( uint8_t bData )
+{
+    uint8_t i = 7;
+    
+    Lcd4480WriteRS( DATA );
+    
+    Lcd4480WriteDB7( bData & (1<<(i--)));
+    Lcd4480WriteDB6( bData & (1<<(i--)));
+    Lcd4480WriteDB5( bData & (1<<(i--)));
+    Lcd4480WriteDB4( bData & (1<<(i--)));
+    
+    Lcd4480PulseEN( );
+    
+    Lcd4480WriteDB7( bData & (1<<(i--)));
+    Lcd4480WriteDB6( bData & (1<<(i--)));
+    Lcd4480WriteDB5( bData & (1<<(i--)));
+    Lcd4480WriteDB4( bData & (1<<(i--)));
+
+    Lcd4480PulseEN( );
+    
+    return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480CmdWrite( uint8_t cmd )
+{
+    uint8_t i = 7;
+    
+    Lcd4480WriteRS( CMD );
+  
+    Lcd4480WriteDB7( cmd & (1<<(i--)));
+    Lcd4480WriteDB6( cmd & (1<<(i--)));
+    Lcd4480WriteDB5( cmd & (1<<(i--)));
+    Lcd4480WriteDB4( cmd & (1<<(i--)));
+    
+    Lcd4480PulseEN( );
+    
+    Lcd4480WriteDB7( cmd & (1<<(i--)));
+    Lcd4480WriteDB6( cmd & (1<<(i--)));
+    Lcd4480WriteDB5( cmd & (1<<(i--)));
+    Lcd4480WriteDB4( cmd & (1<<(i--)));
+
+    Lcd4480PulseEN( );    
 }
 
 //-----------------------------------------------------------------------------
@@ -207,8 +314,46 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
             GPIOPinTypeGPIOInput( stGpioLcdCfg[bCounter].dwBASE, stGpioLcdCfg[bCounter].dwPin );
         }
         
+        delay( 30 );
         
-      
+        Lcd4480WriteRS( 0 );
+        Lcd4480WriteDB7( 0 );
+        Lcd4480WriteDB6( 0 );
+        Lcd4480WriteDB5( 1 );
+        Lcd4480WriteDB4( 1 );
+        
+        Lcd4480PulseEN( );
+        delay( 5 );
+        
+        Lcd4480WriteRS( 0 );
+        Lcd4480WriteDB7( 0 );
+        Lcd4480WriteDB6( 0 );
+        Lcd4480WriteDB5( 1 );
+        Lcd4480WriteDB4( 1 );
+        Lcd4480PulseEN( );        
+        delay( 1 );        
+        
+        Lcd4480WriteRS( 0 );
+        Lcd4480WriteDB7( 0 );
+        Lcd4480WriteDB6( 0 );
+        Lcd4480WriteDB5( 1 );
+        Lcd4480WriteDB4( 1 );   
+        Lcd4480PulseEN( );
+        delay( 1 );        
+        
+        Lcd4480WriteRS( 0 );
+        Lcd4480WriteDB7( 0 );
+        Lcd4480WriteDB6( 0 );
+        Lcd4480WriteDB5( 1 );
+        Lcd4480WriteDB4( 0 );           
+        Lcd4480PulseEN( );        
+        
+        Lcd4480WriteRS( 0 );
+        Lcd4480WriteDB7( 0 );
+        Lcd4480WriteDB6( 0 );
+        Lcd4480WriteDB5( 1 );
+        Lcd4480WriteDB4( 0 );           
+        Lcd4480PulseEN( );
         
         bInit = 1;
     }
