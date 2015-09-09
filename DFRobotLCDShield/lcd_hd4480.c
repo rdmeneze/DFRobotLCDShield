@@ -228,6 +228,7 @@ void Lcd4480WriteEN( uint8_t bData )
 void Lcd4480PulseEN( void )
 {
     Lcd4480WriteEN(1);
+    delay(1);
     Lcd4480WriteEN(0);
 }
 
@@ -311,12 +312,12 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stGpioLcdCfg ); bCounter++ )
         {
             SysCtlPeripheralEnable( stGpioLcdCfg[bCounter].dwSYSCTL );
-            GPIOPinTypeGPIOInput( stGpioLcdCfg[bCounter].dwBASE, stGpioLcdCfg[bCounter].dwPin );
+            GPIOPinTypeGPIOOutput( stGpioLcdCfg[bCounter].dwBASE, stGpioLcdCfg[bCounter].dwPin );
         }
         
         delay( 30 );
         
-        Lcd4480WriteRS( 0 );
+        Lcd4480WriteRS( CMD );
         Lcd4480WriteDB7( 0 );
         Lcd4480WriteDB6( 0 );
         Lcd4480WriteDB5( 1 );
@@ -325,7 +326,7 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         Lcd4480PulseEN( );
         delay( 5 );
         
-        Lcd4480WriteRS( 0 );
+        Lcd4480WriteRS( CMD );
         Lcd4480WriteDB7( 0 );
         Lcd4480WriteDB6( 0 );
         Lcd4480WriteDB5( 1 );
@@ -333,7 +334,7 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         Lcd4480PulseEN( );        
         delay( 1 );        
         
-        Lcd4480WriteRS( 0 );
+        Lcd4480WriteRS( CMD );
         Lcd4480WriteDB7( 0 );
         Lcd4480WriteDB6( 0 );
         Lcd4480WriteDB5( 1 );
@@ -341,14 +342,14 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         Lcd4480PulseEN( );
         delay( 1 );        
         
-        Lcd4480WriteRS( 0 );
+        Lcd4480WriteRS( CMD );
         Lcd4480WriteDB7( 0 );
         Lcd4480WriteDB6( 0 );
         Lcd4480WriteDB5( 1 );
         Lcd4480WriteDB4( 0 );           
         Lcd4480PulseEN( );        
         
-        Lcd4480WriteRS( 0 );
+        Lcd4480WriteRS( CMD );
         Lcd4480WriteDB7( 0 );
         Lcd4480WriteDB6( 0 );
         Lcd4480WriteDB5( 1 );
@@ -357,7 +358,6 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         
         bInit = 1;
     }
-    
     
     return xRet;
 }

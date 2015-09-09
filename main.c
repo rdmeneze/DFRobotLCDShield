@@ -12,6 +12,7 @@
 #include "SysProcessor.h"
 #include "util.h"
 #include "kbd_analog5.h"
+#include "lcd_hd4480.h"
 
 /*****************************************************************************/
 
@@ -45,6 +46,7 @@ int main()
     BrdLedsInit();  /* initialize the board leds engine                 */
     BrdKeyInit();   /* initialize the board keys engine                 */
     KbAnInit();     /* initialize the DFRobot analog keyboard engine    */
+    Lcd4480Init(2,16);
     
     BrdLedsSetState( USR_LED0, 0 );
     BrdLedsSetState( USR_LED1, 0 );
