@@ -31,7 +31,7 @@ LCD_STATUS Lcd4480Clear( void );
 
 LCD_STATUS Lcd4480Home( void );
 
-LCD_STATUS Lcd4480SetCursor( uint8_t bLin, uint8_t bCol );
+LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y );
 
 LCD_STATUS Lcd4480Cursor( void );
 
