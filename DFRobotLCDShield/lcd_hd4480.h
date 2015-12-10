@@ -23,7 +23,7 @@ typedef enum
  * @return      LCD_OK  initialization OK
  * @return      LCD_ERROR initialization ERROR
  */
-LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol );
+LCD_STATUS Lcd4480Init( void );
 
 LCD_STATUS Lcd4480Write( const char* pcMsg );
 

@@ -31,7 +31,8 @@
 // can't assume that its in that state
 
 //
-//   http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
+//  > sample code 
+//  http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
 //
 
 //-----------------------------------------------------------------------------
@@ -39,53 +40,51 @@
 // LCD module information 
 #define LCD_DDADR_LINE1 0x00        // start of line 1 
 #define LCD_DDADR_LINE2 0x40        // start of line 2 
-//#define LCD_LINETHREE 0x14    // start of line 3 (20x4) 
-//#define LCD_LINEFOUR 0x54     // start of line 4 (20x4) 
-#define LCD_DDADR_LINE3 0x10    // start of line 3 (16x4) 
-#define LCD_DDADR_LINE4 0x50     // start of line 4 (16x4)
+//#define LCD_LINETHREE 0x14        // start of line 3 (20x4) 
+//#define LCD_LINEFOUR 0x54         // start of line 4 (20x4) 
+#define LCD_DDADR_LINE3 0x10        // start of line 3 (16x4) 
+#define LCD_DDADR_LINE4 0x50        // start of line 4 (16x4)
 
 // LCD instructions 
 
 typedef enum
 {
-    LCD_CLEAR 			= 0x01, 	//	0b00000001	// replace all characters with ASCII 'space' 
-    LCD_HOME 			= 0x02, 	// 	0b00000010	// return cursor to first position on first line 
-    //LCD_ENTRYMODE 		= 0x06,	    // 	0b00000110	// shift cursor from left to right on read/write 
-    LCD_DISPLAYOFF 		= 0x08,	    // 	0b00001000	// turn display off 
-    LCD_DISPLAYON 		= 0x0c,	    //	0b00001100	// display on, cursor off, don't blink character 
-    LCD_FUNCTIONRESET 	= 0x30,	    //	0b00110000 	// reset the LCD 
-    LCD_FUNCTIONSET4BIT = 0x28,	    //	0b00101000 	// 4-bit data, 2-line display, 5 x 7 font 
-    LCD_SETCURSOR 		= 0x80,	    //	0b10000000	// set cursor position    
+    LCD_CLEAR_CMD 			    = 0x01, 	//	0b00000001	// replace all characters with ASCII 'space' 
+    LCD_HOME_CMD 			    = 0x02, 	// 	0b00000010	// return cursor to first position on first line 
+    
+    // Set Display ---------------- 0b00001xxx  
+    LCD_DISPLAY_CMD             = (1 << 3),
+        LCD_DISPLAY_BLINK_ON    = LCD_DISPLAY_CMD | (1 << 0), 
+        LCD_DISPLAY_BLINK_OFF   = LCD_DISPLAY_CMD           , 
+        LCD_DISPLAY_CURSOR_ON   = LCD_DISPLAY_CMD | (1 << 1),
+        LCD_DISPLAY_CURSOR_OFF  = LCD_DISPLAY_CMD           ,
+        LCD_DISPLAY_ON          = LCD_DISPLAY_CMD | (1 << 2),  
+        LCD_DISPLAY_OFF         = LCD_DISPLAY_CMD           ,  
     
     // Set Entry Mode ------------- 0b000001xx
-    LCD_ENTRY_DECREASE  = 0x04 | 0x00,
-    LCD_ENTRY_INCREASE  = 0x04 | 0x02,
-    LCD_ENTRY_NOSHIFT   = 0x04 | 0x00,
-    LCD_ENTRY_SHIFT     = 0x04 | 0x01,
+    LCD_ENTRY_CMD           = 0x04                      ,
+        LCD_ENTRY_DECREASE  = LCD_ENTRY_CMD             ,
+        LCD_ENTRY_INCREASE  = LCD_ENTRY_CMD | (1 << 1)  ,
+        LCD_ENTRY_NOSHIFT   = LCD_ENTRY_CMD             ,
+        LCD_ENTRY_SHIFT     = LCD_ENTRY_CMD | (1 << 0)  ,
    
-    // Set Display ---------------- 0b00001xxx    
-    LCD_DISPLAY_OFF     = 0x08 | 0x00,
-    LCD_DISPLAY_ON      = 0x08 | 0x04,
-    LCD_CURSOR_OFF      = 0x08 | 0x00,
-    LCD_CURSOR_ON       = 0x08 | 0x02,
-    LCD_BLINKING_OFF    = 0x08 | 0x00,
-    LCD_BLINKING_ON     = 0x08 | 0x01,
-    
     // Set Shift ------------------ 0b0001xxxx
-    LCD_CURSOR_MOVE     = 0x10 | 0x00,
-    LCD_DISPLAY_SHIFT   = 0x10 | 0x08,
-    LCD_SHIFT_LEFT      = 0x10 | 0x00,
-    LCD_SHIFT_RIGHT     = 0x10 | 0x04,
+    LCD_SHIFT_CMD           = 0x10                      , 
+        LCD_CURSOR_SHIFT    = LCD_SHIFT_CMD             ,
+        LCD_DISPLAY_SHIFT   = LCD_SHIFT_CMD | (1 << 3)  ,
+        LCD_SHIFT_LEFT      = LCD_SHIFT_CMD             ,
+        LCD_SHIFT_RIGHT     = LCD_SHIFT_CMD | (1 << 2)  ,
     
     // Set Function --------------- 0b001xxxxx
-    LCD_FUNCTION_4BIT   = 0x20 | 0x00,
-    LCD_FUNCTION_8BIT   = 0x20 | 0x10, 
-    LCD_FUNCTION_1LINE  = 0x20 | 0x00, 
-    LCD_FUNCTION_2LINE  = 0x20 | 0x08, 
-    LCD_FUNCTION_5X7    = 0x20 | 0x00,
-    LCD_FUNCTION_5X10   = 0x20 | 0x04,
-    
-    LCD_SOFT_RESET      =  0x30,
+    LCD_FUNCTION_CMD        = 0x20, 
+        LCD_FUNCTION_4BIT   = LCD_FUNCTION_CMD | 0x00,
+        LCD_FUNCTION_8BIT   = LCD_FUNCTION_CMD | 0x10, 
+        LCD_FUNCTION_1LINE  = LCD_FUNCTION_CMD | 0x00, 
+        LCD_FUNCTION_2LINE  = LCD_FUNCTION_CMD | 0x08, 
+        LCD_FUNCTION_5X7    = LCD_FUNCTION_CMD | 0x00,
+        LCD_FUNCTION_5X10   = LCD_FUNCTION_CMD | 0x04,
+        
+    LCD_SOFT_RESET          = 0x30,
     
     // Set CG RAM Address --------- 0b01xxxxxx  (Character Generator RAM)
     LCD_SET_CGADR       = 0x40,
@@ -355,7 +354,7 @@ void Lcd4480DataWrite( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480CmdWrite( uint8_t cmd )
+void Lcd4480WriteCmd( uint8_t cmd )
 {
     uint8_t i = 7;
     
@@ -380,7 +379,7 @@ void Lcd4480CmdWrite( uint8_t cmd )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
+LCD_STATUS Lcd4480Init( void )
 {
     LCD_STATUS xRet = LCD_ERROR;
     uint8_t bCounter;
@@ -433,13 +432,13 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
         Lcd4480PulseEN( );  
         delay( 1 );     
 
-        Lcd4480CmdWrite( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
+        Lcd4480WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
         
-        Lcd4480CmdWrite( LCD_DISPLAY_OFF );
+        Lcd4480WriteCmd( LCD_DISPLAY_OFF );
         
-        Lcd4480CmdWrite( LCD_CLEAR );
+        Lcd4480Clear( );
         
-        Lcd4480CmdWrite( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
+        Lcd4480WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
                 
         bInit = 1;
     }
@@ -456,6 +455,8 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
          Lcd4480DataWrite( *pcMsg++ );    
     }
     
+    delay( 1 );
+    
     return LCD_OK;
 }
 
@@ -463,16 +464,16 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
 
 LCD_STATUS Lcd4480Clear( void )
 {
-    LCD_STATUS xRet = LCD_OK;
+    Lcd4480WriteCmd( LCD_CLEAR_CMD );
     
-    return xRet;
+    return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
 LCD_STATUS Lcd4480Home( void )
 {
-    Lcd4480CmdWrite( LCD_HOME );
+    Lcd4480WriteCmd( LCD_HOME_CMD );
     
     return LCD_OK;
 }
@@ -482,6 +483,7 @@ LCD_STATUS Lcd4480Home( void )
 LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
 {
     uint8_t data;
+    LCD_STATUS xRet = LCD_OK;
  
     switch (y)
     {
@@ -502,19 +504,22 @@ LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
             break;
  
         default:
-            return LCD_ERROR;                                   // für den Fall einer falschen Zeile
+            xRet = LCD_ERROR;                                   // für den Fall einer falschen Zeile
     }
  
-    Lcd4480CmdWrite( data );    
+    if ( xRet == LCD_OK )
+    {
+        Lcd4480WriteCmd( data );    
+    }
     
-    return LCD_OK;
+    return xRet;
 }
 
 //-----------------------------------------------------------------------------
 
 LCD_STATUS Lcd4480Cursor( void )
 {    
-    Lcd4480CmdWrite( LCD_CURSOR_ON );
+    Lcd4480WriteCmd( LCD_DISPLAY_CURSOR_ON );
     
     return LCD_OK;
 }
@@ -523,7 +528,7 @@ LCD_STATUS Lcd4480Cursor( void )
 
 LCD_STATUS Lcd4480NoCursor( void )
 {
-   Lcd4480CmdWrite( LCD_CURSOR_OFF );
+   Lcd4480WriteCmd( LCD_DISPLAY_CURSOR_OFF );
     
    return LCD_OK;
 }
@@ -532,7 +537,7 @@ LCD_STATUS Lcd4480NoCursor( void )
 
 LCD_STATUS Lcd4480Blink( void )
 {
-    Lcd4480CmdWrite( LCD_BLINKING_ON );
+    Lcd4480WriteCmd( LCD_DISPLAY_BLINK_ON );
 
     return LCD_OK;
 }
@@ -541,7 +546,7 @@ LCD_STATUS Lcd4480Blink( void )
 
 LCD_STATUS Lcd4480NoBlink( void )
 {
-    Lcd4480CmdWrite( LCD_BLINKING_OFF );
+    Lcd4480WriteCmd( LCD_DISPLAY_BLINK_OFF );
 
     return LCD_OK;
 }
@@ -550,7 +555,7 @@ LCD_STATUS Lcd4480NoBlink( void )
 
 LCD_STATUS Lcd4480Display( void )
 {
-    Lcd4480CmdWrite( LCD_DISPLAYON );
+    Lcd4480WriteCmd( LCD_DISPLAY_ON );
 
     return LCD_OK;
 }
@@ -559,7 +564,7 @@ LCD_STATUS Lcd4480Display( void )
 
 LCD_STATUS Lcd4480NoDisplay( void )
 {
-    Lcd4480CmdWrite( LCD_DISPLAYOFF );
+    Lcd4480WriteCmd( LCD_DISPLAY_OFF );
 
     return LCD_OK;
 }
@@ -568,7 +573,7 @@ LCD_STATUS Lcd4480NoDisplay( void )
 
 LCD_STATUS Lcd4480ScrollDisplayLeft( void )
 {
-    Lcd4480CmdWrite( LCD_SHIFT_LEFT );
+    Lcd4480WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_LEFT );
 
     return LCD_OK;
 }
@@ -577,7 +582,7 @@ LCD_STATUS Lcd4480ScrollDisplayLeft( void )
 
 LCD_STATUS Lcd4480ScrollDisplayRight( void )
 {
-    Lcd4480CmdWrite( LCD_SHIFT_RIGHT );
+    Lcd4480WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_RIGHT );
 
     return LCD_OK;
 }
@@ -604,18 +609,18 @@ LCD_STATUS Lcd4480ScrollNoAutoScroll( void )
 
 LCD_STATUS Lcd4480ScrollLeftToRight( void )
 {
-    LCD_STATUS xRet = LCD_OK;
+    Lcd4480WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_RIGHT );
     
-    return xRet;
+    return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
 LCD_STATUS Lcd4480ScrollRightToLeft( void )
 {
-    LCD_STATUS xRet = LCD_OK;
+    Lcd4480WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_LEFT );
     
-    return xRet;
+    return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
