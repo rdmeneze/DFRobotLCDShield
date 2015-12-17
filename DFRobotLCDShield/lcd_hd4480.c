@@ -439,8 +439,12 @@ LCD_STATUS Lcd4480Init( void )
         Lcd4480Clear( );
         
         Lcd4480WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
-                
+                        
         bInit = 1;
+        
+        Lcd4480BackLightOn();
+        Lcd4480BackLightOff();
+        
     }
     
     return xRet;
@@ -629,6 +633,39 @@ LCD_STATUS Lcd4480ScrollCreateChar( void )
 {
     LCD_STATUS xRet = LCD_OK;
     
+    return xRet;
+}
+
+//-----------------------------------------------------------------------------
+
+LCD_STATUS Lcd4480BackLightOn( void )
+{
+    LCD_STATUS xRet = LCD_ERROR;
+    
+    if ( bInit )
+    {
+        const PIN_LCD pin = LCD_BK;
+        
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, stGpioLcdCfg[pin].dwPin );
+        
+    }    
+    
+    return xRet;
+}
+
+//-----------------------------------------------------------------------------
+
+LCD_STATUS Lcd4480BackLightOff( void )
+{
+    LCD_STATUS xRet = LCD_ERROR;
+
+    if ( bInit )
+    {
+        const PIN_LCD pin = LCD_BK;
+        
+        GPIOPinWrite( stGpioLcdCfg[pin].dwBASE,stGpioLcdCfg[pin].dwPin, ~stGpioLcdCfg[pin].dwPin ); 
+    }    
+
     return xRet;
 }
 

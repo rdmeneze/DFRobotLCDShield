@@ -59,4 +59,8 @@ LCD_STATUS Lcd4480ScrollRightToLeft( void );
 
 LCD_STATUS Lcd4480ScrollCreateChar( void );
 
+LCD_STATUS Lcd4480BackLightOn( void );
+
+LCD_STATUS Lcd4480BackLightOff( void );
+
 #endif //~ _LCD_HD4480_H_

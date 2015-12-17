@@ -46,7 +46,7 @@ int main()
     BrdLedsInit();  /* initialize the board leds engine                 */
     BrdKeyInit();   /* initialize the board keys engine                 */
     KbAnInit();     /* initialize the DFRobot analog keyboard engine    */
-    Lcd4480Init(2,16);
+    Lcd4480Init( );
     
     BrdLedsSetState( USR_LED0, 0 );
     BrdLedsSetState( USR_LED1, 0 );
