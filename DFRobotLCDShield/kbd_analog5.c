@@ -109,10 +109,10 @@ uint32_t ReadKbAnTask( void* pParam );
 KB_AN_STATUS_t KbAnInit( void )
 {
     KB_AN_STATUS_t  xRet = KB_AN_ST_OK;
-    uint32_t        dwRet = 0;
     
     if ( bInit == 0 )
     {
+		uint32_t        dwRet = 0;
         
         dwRet = TTimerRegisterCallBack( KB_AN_TIMER     , 
                                         TimerPeriodic   , 

@@ -48,12 +48,12 @@ struct STGpioInputStatus
  *  @struct STUserLedControl
  *  @brief  struct to represent the Led control structure
  */
-struct STUserSwitchControl
-{
-    uint32_t    dwCount;      /**< the count variable. Used to control the state of ON/OFF    */
-    uint32_t    dwID;         /**< ID of LED                                                  */
-    uint32_t    dwHandle;     /**< HANDLE of LED                                              */
-};
+//struct STUserSwitchControl
+//{
+//    uint32_t    dwCount;      /**< the count variable. Used to control the state of ON/OFF    */
+//    uint32_t    dwID;         /**< ID of LED                                                  */
+//    uint32_t    dwHandle;     /**< HANDLE of LED                                              */
+//};
 
 /**********************************************************************************************/
 
@@ -99,12 +99,13 @@ uint32_t UserSwitchTask( void* pParam );
 uint32_t BrdKeyInit( void )
 {
     uint32_t    dwTimerHandle;
-    uint8_t     bCounter;
     uint32_t    dwRet = (DWORD)-1;
     
     if ( !bInit )
     {
-        for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stSwitchConfig ); bCounter++ )
+		uint8_t     bCounter;
+        
+		for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stSwitchConfig ); bCounter++ )
         {
             SysCtlPeripheralEnable( stSwitchConfig[bCounter].dwSYSCTL );
             GPIOPinTypeGPIOInput( stSwitchConfig[bCounter].dwBASE, stSwitchConfig[bCounter].dwPin );

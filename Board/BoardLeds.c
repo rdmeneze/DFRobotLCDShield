@@ -93,11 +93,12 @@ static uint8_t bInit = 0;
 uint32_t BrdLedsInit( void )
 {
     uint32_t dwRet = (uint32_t)-1;
-    uint8_t bCounter= 0;
     
     if ( !bInit )
     {
-        for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stUserLedCfg ); bCounter++ )
+		uint8_t bCounter;
+        
+		for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stUserLedCfg ); bCounter++ )
         {
             SysCtlPeripheralEnable( stUserLedCfg[bCounter].dwSYSCTL );
             GPIOPinTypeGPIOOutput( stUserLedCfg[bCounter].dwBase, stUserLedCfg[bCounter].dwPin );

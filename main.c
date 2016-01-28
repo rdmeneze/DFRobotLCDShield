@@ -48,6 +48,11 @@ int main()
     KbAnInit();     /* initialize the DFRobot analog keyboard engine    */
     Lcd4480Init( );
     
+    Lcd4480BackLightOn();
+    
+    Lcd4480Home();
+    Lcd4480Write( "teste " );
+    
     BrdLedsSetState( USR_LED0, 0 );
     BrdLedsSetState( USR_LED1, 0 );
     BrdLedsSetState( USR_LED2, 0 );

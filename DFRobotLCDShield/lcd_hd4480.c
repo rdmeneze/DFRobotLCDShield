@@ -33,13 +33,14 @@
 //
 //  > sample code 
 //  http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
+//  http://web.alfredstate.edu/weimandn/programming/lcd/ATmega328/LCD_code_gcc_4d.html
 //
 
 //-----------------------------------------------------------------------------
 
 // LCD module information 
-#define LCD_DDADR_LINE1 0x00        // start of line 1 
-#define LCD_DDADR_LINE2 0x40        // start of line 2 
+#define LCD_DDADR_LINE1 0x00        // start of line 1 (16x2)/(20x2)  
+#define LCD_DDADR_LINE2 0x40        // start of line 2 (16x2)/(20x2)   
 //#define LCD_LINETHREE 0x14        // start of line 3 (20x4) 
 //#define LCD_LINEFOUR 0x54         // start of line 4 (20x4) 
 #define LCD_DDADR_LINE3 0x10        // start of line 3 (16x4) 
@@ -49,8 +50,8 @@
 
 typedef enum
 {
-    LCD_CLEAR_CMD 			    = 0x01, 	//	0b00000001	// replace all characters with ASCII 'space' 
-    LCD_HOME_CMD 			    = 0x02, 	// 	0b00000010	// return cursor to first position on first line 
+    LCD_CLEAR_CMD 			    = (1 << 0), 	//	0b00000001	// replace all characters with ASCII 'space' 
+    LCD_HOME_CMD 			    = (1 << 1), 	// 	0b00000010	// return cursor to first position on first line 
     
     // Set Display ---------------- 0b00001xxx  
     LCD_DISPLAY_CMD             = (1 << 3),
@@ -62,21 +63,21 @@ typedef enum
         LCD_DISPLAY_OFF         = LCD_DISPLAY_CMD           ,  
     
     // Set Entry Mode ------------- 0b000001xx
-    LCD_ENTRY_CMD           = 0x04                      ,
+    LCD_ENTRY_CMD           = (1 << 2)                  ,
         LCD_ENTRY_DECREASE  = LCD_ENTRY_CMD             ,
         LCD_ENTRY_INCREASE  = LCD_ENTRY_CMD | (1 << 1)  ,
         LCD_ENTRY_NOSHIFT   = LCD_ENTRY_CMD             ,
         LCD_ENTRY_SHIFT     = LCD_ENTRY_CMD | (1 << 0)  ,
    
     // Set Shift ------------------ 0b0001xxxx
-    LCD_SHIFT_CMD           = 0x10                      , 
+    LCD_SHIFT_CMD           = (1 << 4)                  , 
         LCD_CURSOR_SHIFT    = LCD_SHIFT_CMD             ,
         LCD_DISPLAY_SHIFT   = LCD_SHIFT_CMD | (1 << 3)  ,
         LCD_SHIFT_LEFT      = LCD_SHIFT_CMD             ,
         LCD_SHIFT_RIGHT     = LCD_SHIFT_CMD | (1 << 2)  ,
     
     // Set Function --------------- 0b001xxxxx
-    LCD_FUNCTION_CMD        = 0x20, 
+    LCD_FUNCTION_CMD        = (1 << 5), 
         LCD_FUNCTION_4BIT   = LCD_FUNCTION_CMD | 0x00,
         LCD_FUNCTION_8BIT   = LCD_FUNCTION_CMD | 0x10, 
         LCD_FUNCTION_1LINE  = LCD_FUNCTION_CMD | 0x00, 
@@ -382,11 +383,12 @@ void Lcd4480WriteCmd( uint8_t cmd )
 LCD_STATUS Lcd4480Init( void )
 {
     LCD_STATUS xRet = LCD_ERROR;
-    uint8_t bCounter;
     
     if ( !bInit )
     {
-        // configura os GPIOs 
+		uint8_t bCounter;
+        
+		// configura os GPIOs 
         for ( bCounter = 0; bCounter < GET_ARRAY_LEN( stGpioLcdCfg ); bCounter++ )
         {
             SysCtlPeripheralEnable( stGpioLcdCfg[bCounter].dwSYSCTL );
