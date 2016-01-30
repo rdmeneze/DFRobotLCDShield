@@ -299,12 +299,24 @@ void Lcd4480WriteEN( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480PulseEN( void )
-{
-    Lcd4480WriteEN(1);
-    delay(1);
-    Lcd4480WriteEN(0);
-}
+#define Lcd4480PulseEN()    \
+    do                      \
+    {                       \
+        Lcd4480WriteEN(1);  \
+        delay(2);           \
+        Lcd4480WriteEN(0);  \
+        delay(2);           \
+    } while( 0 )
+    
+
+
+//void Lcd4480PulseEN( void )
+//{
+//    Lcd4480WriteEN(1);
+//    delay(20);
+//    Lcd4480WriteEN(0);
+//    delay(20);
+//}
 
 //-----------------------------------------------------------------------------
 
@@ -327,28 +339,40 @@ void Lcd4480WriteRS( RS_TYPE rs )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480DataWrite( uint8_t bData )
+void Lcd4480WriteCmd4bit( uint8_t cmd )
 {
-    uint8_t i = 7;
-    
-    Lcd4480WriteRS( DATA );
-    
-    Lcd4480WriteDB7( bData & (1<<(i--)));
-    Lcd4480WriteDB6( bData & (1<<(i--)));
-    Lcd4480WriteDB5( bData & (1<<(i--)));
-    Lcd4480WriteDB4( bData & (1<<(i--)));
-    
-    Lcd4480PulseEN( );
-    delay( 1 );
-    
-    Lcd4480WriteDB7( bData & (1<<(i--)));
-    Lcd4480WriteDB6( bData & (1<<(i--)));
-    Lcd4480WriteDB5( bData & (1<<(i--)));
-    Lcd4480WriteDB4( bData & (1<<(i--)));
+    Lcd4480WriteRS( CMD );
+  
+    Lcd4480WriteDB7( cmd & (1<<3));
+    Lcd4480WriteDB6( cmd & (1<<2));
+    Lcd4480WriteDB5( cmd & (1<<1));
+    Lcd4480WriteDB4( cmd & (1<<0));
 
-    Lcd4480PulseEN( );
-    
-    delay( 1 );
+    Lcd4480PulseEN( );  
+    return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480WriteData4bit( uint8_t data )
+{
+    Lcd4480WriteRS( DATA );
+  
+    Lcd4480WriteDB7( data & (1<<3));
+    Lcd4480WriteDB6( data & (1<<2));
+    Lcd4480WriteDB5( data & (1<<1));
+    Lcd4480WriteDB4( data & (1<<0));
+
+    Lcd4480PulseEN( );  
+    return;
+}
+
+//-----------------------------------------------------------------------------
+
+void Lcd4480DataWrite( uint8_t bData )
+{   
+    Lcd4480WriteData4bit( bData >> 4 );
+    Lcd4480WriteData4bit( bData & 0x0F );
     
     return;
 }
@@ -356,26 +380,11 @@ void Lcd4480DataWrite( uint8_t bData )
 //-----------------------------------------------------------------------------
 
 void Lcd4480WriteCmd( uint8_t cmd )
-{
-    uint8_t i = 7;
+{    
+    Lcd4480WriteCmd4bit( cmd >> 4 );    
+    Lcd4480WriteCmd4bit( cmd & 0x0F );    
     
-    Lcd4480WriteRS( CMD );
-  
-    Lcd4480WriteDB7( cmd & (1<<(i--)));
-    Lcd4480WriteDB6( cmd & (1<<(i--)));
-    Lcd4480WriteDB5( cmd & (1<<(i--)));
-    Lcd4480WriteDB4( cmd & (1<<(i--)));
-    
-    Lcd4480PulseEN( );
-    delay( 1 );
-    
-    Lcd4480WriteDB7( cmd & (1<<(i--)));
-    Lcd4480WriteDB6( cmd & (1<<(i--)));
-    Lcd4480WriteDB5( cmd & (1<<(i--)));
-    Lcd4480WriteDB4( cmd & (1<<(i--)));
-
-    Lcd4480PulseEN( );    
-    delay( 1 );
+    return;
 }
 
 //-----------------------------------------------------------------------------
@@ -398,45 +407,25 @@ LCD_STATUS Lcd4480Init( void )
         
         delay( 100 );
         
-        Lcd4480WriteRS( CMD );
-        Lcd4480WriteDB7( 0 );
-        Lcd4480WriteDB6( 0 );
-        Lcd4480WriteDB5( 1 );
-        Lcd4480WriteDB4( 1 );
-        
-        Lcd4480PulseEN( );
+        /* Try to set 4bit mode */
+        Lcd4480WriteCmd4bit(0x03);
         delay( 5 );
         
-        Lcd4480WriteRS( CMD );
-        Lcd4480WriteDB7( 0 );
-        Lcd4480WriteDB6( 0 );
-        Lcd4480WriteDB5( 1 );
-        Lcd4480WriteDB4( 1 );
-        
-        Lcd4480PulseEN( );        
-        delay( 1 );        
-        
-        Lcd4480WriteRS( CMD );
-        Lcd4480WriteDB7( 0 );
-        Lcd4480WriteDB6( 0 );
-        Lcd4480WriteDB5( 1 );
-        Lcd4480WriteDB4( 1 );   
-        
-        Lcd4480PulseEN( );
-        delay( 1 );        
-        
-        Lcd4480WriteRS( CMD );
-        Lcd4480WriteDB7( 0 );
-        Lcd4480WriteDB6( 0 );
-        Lcd4480WriteDB5( 1 );
-        Lcd4480WriteDB4( 0 );           
-        
-        Lcd4480PulseEN( );  
-        delay( 1 );     
+        /* Second try */
+        Lcd4480WriteCmd4bit(0x03);
+        delay( 5 );
 
+        /* Third goo! */
+        Lcd4480WriteCmd4bit(0x03);
+        delay( 5 );
+        
+        /* Set 4-bit interface */
+        Lcd4480WriteCmd4bit(0x02);
+        delay(1);
+        
         Lcd4480WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
         
-        Lcd4480WriteCmd( LCD_DISPLAY_OFF );
+        Lcd4480WriteCmd( LCD_DISPLAY_ON );
         
         Lcd4480Clear( );
         

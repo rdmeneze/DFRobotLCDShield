@@ -51,7 +51,8 @@ int main()
     Lcd4480BackLightOn();
     
     Lcd4480Home();
-    Lcd4480Write( "teste " );
+    //Lcd4480SetCursor( 0, 0 );
+    Lcd4480Write( "***EMBARCADOS***" );
     
     BrdLedsSetState( USR_LED0, 0 );
     BrdLedsSetState( USR_LED1, 0 );
