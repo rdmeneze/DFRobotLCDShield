@@ -1048,6 +1048,21 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>BMP180</GroupName>
+          <Files>
+            <File>
+              <FileName>BMP180.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\BMP180\BMP180.c</FilePath>
+            </File>
+            <File>
+              <FileName>BMP180.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\BMP180\BMP180.h</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
   </Targets>

@@ -12,7 +12,7 @@
 * @{
 */
 
-#include "lcd_hd4480.h"
+#include "lcd_hd44780.h"
 #include "kbd_analog5.h"
 
 

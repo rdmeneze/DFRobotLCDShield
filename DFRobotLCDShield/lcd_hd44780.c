@@ -1,11 +1,11 @@
 /**
- * @file    lcd_hd4480.h
+ * @file    lcd_hd44780.h
  * @brief   
  * @author  Rafael Dias <rdmeneze@gmail.com>
  * @date    ago/2015
  */
 
-#include "lcd_hd4480.h"
+#include "lcd_hd44780.h"
 #include "ttimer.h"
 #include "util.h"
 #include <driverlib/sysctl.h>
@@ -226,7 +226,7 @@ const struct STGpioConfig stGpioLcdCfg[] =
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteDB7( uint8_t bData )
+void Lcd44780WriteDB7( uint8_t bData )
 {
     const PIN_LCD pin = LCD_DB7;
     
@@ -244,7 +244,7 @@ void Lcd4480WriteDB7( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteDB6( uint8_t bData )
+void Lcd44780WriteDB6( uint8_t bData )
 {
     const PIN_LCD pin = LCD_DB6;
     
@@ -260,7 +260,7 @@ void Lcd4480WriteDB6( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteDB5( uint8_t bData )
+void Lcd44780WriteDB5( uint8_t bData )
 {
     const PIN_LCD pin = LCD_DB5;
     
@@ -276,7 +276,7 @@ void Lcd4480WriteDB5( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteDB4( uint8_t bData )
+void Lcd44780WriteDB4( uint8_t bData )
 {
     const PIN_LCD pin = LCD_DB4;
     
@@ -292,7 +292,7 @@ void Lcd4480WriteDB4( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteEN( uint8_t bData )
+void Lcd44780WriteEN( uint8_t bData )
 {
     if ( bData )
     {
@@ -308,18 +308,18 @@ void Lcd4480WriteEN( uint8_t bData )
 
 //-----------------------------------------------------------------------------
 
-#define Lcd4480PulseEN()    \
+#define Lcd44780PulseEN()    \
     do                      \
     {                       \
-        Lcd4480WriteEN(1);  \
+        Lcd44780WriteEN(1);  \
         delay(2);           \
-        Lcd4480WriteEN(0);  \
+        Lcd44780WriteEN(0);  \
         delay(2);           \
     } while( 0 )
     
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteRS( RS_TYPE rs )
+void Lcd44780WriteRS( RS_TYPE rs )
 {
     switch( rs )
     {
@@ -338,57 +338,57 @@ void Lcd4480WriteRS( RS_TYPE rs )
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteCmd4bit( uint8_t cmd )
+void Lcd44780WriteCmd4bit( uint8_t cmd )
 {
-    Lcd4480WriteRS( CMD );
+    Lcd44780WriteRS( CMD );
   
-    Lcd4480WriteDB7( cmd & (1<<3));
-    Lcd4480WriteDB6( cmd & (1<<2));
-    Lcd4480WriteDB5( cmd & (1<<1));
-    Lcd4480WriteDB4( cmd & (1<<0));
+    Lcd44780WriteDB7( cmd & (1<<3));
+    Lcd44780WriteDB6( cmd & (1<<2));
+    Lcd44780WriteDB5( cmd & (1<<1));
+    Lcd44780WriteDB4( cmd & (1<<0));
 
-    Lcd4480PulseEN( );  
+    Lcd44780PulseEN( );  
     return;
 }
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteData4bit( uint8_t data )
+void Lcd44780WriteData4bit( uint8_t data )
 {
-    Lcd4480WriteRS( DATA );
+    Lcd44780WriteRS( DATA );
   
-    Lcd4480WriteDB7( data & (1<<3));
-    Lcd4480WriteDB6( data & (1<<2));
-    Lcd4480WriteDB5( data & (1<<1));
-    Lcd4480WriteDB4( data & (1<<0));
+    Lcd44780WriteDB7( data & (1<<3));
+    Lcd44780WriteDB6( data & (1<<2));
+    Lcd44780WriteDB5( data & (1<<1));
+    Lcd44780WriteDB4( data & (1<<0));
 
-    Lcd4480PulseEN( );  
+    Lcd44780PulseEN( );  
     return;
 }
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480DataWrite( uint8_t bData )
+void Lcd44780DataWrite( uint8_t bData )
 {   
-    Lcd4480WriteData4bit( bData >> 4 );
-    Lcd4480WriteData4bit( bData & 0x0F );
+    Lcd44780WriteData4bit( bData >> 4 );
+    Lcd44780WriteData4bit( bData & 0x0F );
     
     return;
 }
 
 //-----------------------------------------------------------------------------
 
-void Lcd4480WriteCmd( uint8_t cmd )
+void Lcd44780WriteCmd( uint8_t cmd )
 {    
-    Lcd4480WriteCmd4bit( cmd >> 4 );    
-    Lcd4480WriteCmd4bit( cmd & 0x0F );    
+    Lcd44780WriteCmd4bit( cmd >> 4 );    
+    Lcd44780WriteCmd4bit( cmd & 0x0F );    
     
     return;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
+LCD_STATUS Lcd44780Init( uint8_t bLin, uint8_t bCol )
 {
     LCD_STATUS xRet = LCD_ERROR;
     
@@ -413,28 +413,28 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
             delay( 100 );
             
             /* Try to set 4bit mode */
-            Lcd4480WriteCmd4bit(0x03);
+            Lcd44780WriteCmd4bit(0x03);
             delay( 5 );
             
             /* Second try */
-            Lcd4480WriteCmd4bit(0x03);
+            Lcd44780WriteCmd4bit(0x03);
             delay( 5 );
 
             /* Third goo! */
-            Lcd4480WriteCmd4bit(0x03);
+            Lcd44780WriteCmd4bit(0x03);
             delay( 5 );
             
             /* Set 4-bit interface */
-            Lcd4480WriteCmd4bit(0x02);
+            Lcd44780WriteCmd4bit(0x02);
             delay(1);
             
-            Lcd4480WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
+            Lcd44780WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
             
-            Lcd4480WriteCmd( LCD_DISPLAY_ON );
+            Lcd44780WriteCmd( LCD_DISPLAY_ON );
             
-            Lcd4480Clear( );
+            Lcd44780Clear( );
             
-            Lcd4480WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
+            Lcd44780WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
                             
             bInit = 1;
         }
@@ -445,28 +445,28 @@ LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
 
 //-----------------------------------------------------------------------------
 
-uint8_t Lcd4480GetLin(void)
+uint8_t Lcd44780GetLin(void)
 {
     return lcd.bLin;
 }
 
 //-----------------------------------------------------------------------------
 
-uint8_t Lcd4480GetCol(void)
+uint8_t Lcd44780GetCol(void)
 {
     return lcd.bCol;
 }
 
 //-----------------------------------------------------------------------------
 
-uint8_t Lcd4480GetCurLin(void)
+uint8_t Lcd44780GetCurLin(void)
 {
     return lcd.bCurLin;
 }
 
 //-----------------------------------------------------------------------------
 
-uint8_t Lcd4480GetCurCol(void)
+uint8_t Lcd44780GetCurCol(void)
 {
     return lcd.bCurCol;
 }
@@ -474,7 +474,7 @@ uint8_t Lcd4480GetCurCol(void)
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Write( const char* pcMsg )
+LCD_STATUS Lcd44780Write( const char* pcMsg )
 {    
     while( *pcMsg != '\0' )
     {
@@ -490,7 +490,7 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
                 
                 lcd.bCurCol = 0;
                 
-                Lcd4480SetCursor( lcd.bCurLin, lcd.bCurCol );
+                Lcd44780SetCursor( lcd.bCurLin, lcd.bCurCol );
                 pcMsg++;
                 break;
             }
@@ -506,11 +506,11 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
                     if ( lcd.bCurLin == lcd.bLin )
                         lcd.bCurLin = 0;
                     
-                    Lcd4480SetCursor( lcd.bCurLin, lcd.bCurCol );
+                    Lcd44780SetCursor( lcd.bCurLin, lcd.bCurCol );
                     
                 }
                 
-                Lcd4480DataWrite( *pcMsg++ );    
+                Lcd44780DataWrite( *pcMsg++ );    
                 break;
             }
         }
@@ -522,19 +522,19 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Clear( void )
+LCD_STATUS Lcd44780Clear( void )
 {
-    Lcd4480WriteCmd( LCD_CLEAR_CMD );
-    Lcd4480SetCursor( 0, 0 );
+    Lcd44780WriteCmd( LCD_CLEAR_CMD );
+    Lcd44780SetCursor( 0, 0 );
     
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Home( void )
+LCD_STATUS Lcd44780Home( void )
 {
-    Lcd4480WriteCmd( LCD_HOME_CMD );
+    Lcd44780WriteCmd( LCD_HOME_CMD );
     
     lcd.bCurCol= 0;
     lcd.bCurLin = 0;
@@ -544,7 +544,7 @@ LCD_STATUS Lcd4480Home( void )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
+LCD_STATUS Lcd44780SetCursor( uint8_t x, uint8_t y )
 {
     uint8_t data;
     LCD_STATUS xRet = LCD_OK;
@@ -575,7 +575,7 @@ LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
     {
         lcd.bCurLin = x;
         lcd.bCurCol = y;
-        Lcd4480WriteCmd( data );    
+        Lcd44780WriteCmd( data );    
     }
     
     return xRet;
@@ -583,79 +583,79 @@ LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Cursor( void )
+LCD_STATUS Lcd44780Cursor( void )
 {    
-    Lcd4480WriteCmd( LCD_DISPLAY_CURSOR_ON );
+    Lcd44780WriteCmd( LCD_DISPLAY_CURSOR_ON );
     
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480NoCursor( void )
+LCD_STATUS Lcd44780NoCursor( void )
 {
-   Lcd4480WriteCmd( LCD_DISPLAY_CURSOR_OFF );
+   Lcd44780WriteCmd( LCD_DISPLAY_CURSOR_OFF );
     
    return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Blink( void )
+LCD_STATUS Lcd44780Blink( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_BLINK_ON );
+    Lcd44780WriteCmd( LCD_DISPLAY_BLINK_ON );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480NoBlink( void )
+LCD_STATUS Lcd44780NoBlink( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_BLINK_OFF );
+    Lcd44780WriteCmd( LCD_DISPLAY_BLINK_OFF );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Display( void )
+LCD_STATUS Lcd44780Display( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_ON );
+    Lcd44780WriteCmd( LCD_DISPLAY_ON );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480NoDisplay( void )
+LCD_STATUS Lcd44780NoDisplay( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_OFF );
+    Lcd44780WriteCmd( LCD_DISPLAY_OFF );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollDisplayLeft( void )
+LCD_STATUS Lcd44780ScrollDisplayLeft( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_LEFT );
+    Lcd44780WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_LEFT );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollDisplayRight( void )
+LCD_STATUS Lcd44780ScrollDisplayRight( void )
 {
-    Lcd4480WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_RIGHT );
+    Lcd44780WriteCmd( LCD_DISPLAY_SHIFT | LCD_SHIFT_RIGHT );
 
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollAutoScroll( void )
+LCD_STATUS Lcd44780ScrollAutoScroll( void )
 {
     LCD_STATUS xRet = LCD_OK;
     
@@ -664,7 +664,7 @@ LCD_STATUS Lcd4480ScrollAutoScroll( void )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollNoAutoScroll( void )
+LCD_STATUS Lcd44780ScrollNoAutoScroll( void )
 {
     LCD_STATUS xRet = LCD_OK;
     
@@ -673,25 +673,25 @@ LCD_STATUS Lcd4480ScrollNoAutoScroll( void )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollLeftToRight( void )
+LCD_STATUS Lcd44780ScrollLeftToRight( void )
 {
-    Lcd4480WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_RIGHT );
+    Lcd44780WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_RIGHT );
     
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollRightToLeft( void )
+LCD_STATUS Lcd44780ScrollRightToLeft( void )
 {
-    Lcd4480WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_LEFT );
+    Lcd44780WriteCmd( LCD_CURSOR_SHIFT | LCD_SHIFT_LEFT );
     
     return LCD_OK;
 }
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480ScrollCreateChar( void )
+LCD_STATUS Lcd44780ScrollCreateChar( void )
 {
     LCD_STATUS xRet = LCD_OK;
     
@@ -700,7 +700,7 @@ LCD_STATUS Lcd4480ScrollCreateChar( void )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480BackLightOn( void )
+LCD_STATUS Lcd44780BackLightOn( void )
 {
     LCD_STATUS xRet = LCD_ERROR;
     
@@ -717,7 +717,7 @@ LCD_STATUS Lcd4480BackLightOn( void )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480BackLightOff( void )
+LCD_STATUS Lcd44780BackLightOff( void )
 {
     LCD_STATUS xRet = LCD_ERROR;
 

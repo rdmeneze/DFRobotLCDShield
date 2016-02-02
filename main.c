@@ -12,7 +12,7 @@
 #include "SysProcessor.h"
 #include "util.h"
 #include "kbd_analog5.h"
-#include "lcd_hd4480.h"
+#include "lcd_hd44780.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -27,10 +27,6 @@ uint32_t TaskReadKbAn( void* lpParam );
 uint32_t UsrLed2Off( void* lpParam );
 
 uint32_t UsrPrintText( void* lpParam );
-
-/*****************************************************************************/
-
-
 
 /*****************************************************************************/
 
@@ -49,13 +45,13 @@ int main()
     BrdLedsInit();  /* initialize the board leds engine                 */
     BrdKeyInit();   /* initialize the board keys engine                 */
     KbAnInit();     /* initialize the DFRobot analog keyboard engine    */
-    Lcd4480Init( 2, 16 );
+    Lcd44780Init( 2, 16 );
     
-    Lcd4480BackLightOn();
+    Lcd44780BackLightOn();
     
-    //Lcd4480Home();
-    Lcd4480SetCursor( 0, 0 );
-    Lcd4480Write( "***EMBARCADOS***" );
+    //Lcd44780Home();
+    Lcd44780SetCursor( 0, 0 );
+    Lcd44780Write( "***EMBARCADOS***" );
     
     BrdLedsSetState( USR_LED0, 0 );
     BrdLedsSetState( USR_LED1, 0 );
@@ -83,47 +79,55 @@ int main()
 
 uint32_t UsrPrintText( void* lpParam )
 {
+    typedef enum
+    {
+        TSPLASHSCREEN,
+        TCLEAN,
+        TUPDATEBUFFER,
+        TPOSCURSOR,
+        TWRITELCD,
+    } TUSRPRINT;
+    
+    static TUSRPRINT stPrintText = TSPLASHSCREEN;
     static uint16_t wCounter = 0;
     static char cDispOut[7] = {0};
-    static uint8_t stPrintText = 0;
     
     switch( stPrintText )
     {
-        case  0:
+        case  TSPLASHSCREEN:
         {
-            stPrintText = 1;
+            stPrintText = TCLEAN;
             break;
         }
         
-        case  1:
+        case  TCLEAN:
         {
-            Lcd4480Clear();
-            stPrintText = 2;
+            Lcd44780Clear();
+            stPrintText = TUPDATEBUFFER;
             break;
         }
-                    
         
-        case  2: 
+        case  TUPDATEBUFFER: 
         {
             memset( cDispOut, 0, sizeof( cDispOut ));
             sprintf( cDispOut, "%06d", wCounter );
-            stPrintText = 3;
+            stPrintText = TPOSCURSOR;
             break;
         }
         
-        case 3: 
+        case TPOSCURSOR: 
         {
-            uint8_t s = (Lcd4480GetCol() - sizeof(cDispOut)) >> 1;
-            Lcd4480SetCursor( Lcd4480GetCurLin() , s );
-            stPrintText = 4;
+            uint8_t s = (Lcd44780GetCol() - sizeof(cDispOut)) >> 1;
+            Lcd44780SetCursor( Lcd44780GetCurLin() , s );
+            stPrintText = TWRITELCD;
             break;
         }
         
-        case  4:
+        case  TWRITELCD:
         {
-            Lcd4480Write( cDispOut );
+            Lcd44780Write( cDispOut );
             wCounter++;
-            stPrintText = 2;
+            stPrintText = TUPDATEBUFFER;
             break;
         }
     }
