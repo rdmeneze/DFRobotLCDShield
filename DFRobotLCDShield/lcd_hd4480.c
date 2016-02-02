@@ -46,6 +46,14 @@
 #define LCD_DDADR_LINE3 0x10        // start of line 3 (16x4) 
 #define LCD_DDADR_LINE4 0x50        // start of line 4 (16x4)
 
+typedef struct 
+{
+    uint8_t bLin; 
+    uint8_t bCol;
+    uint8_t bCurLin;
+    uint8_t bCurCol;
+} TLcdInfo;
+
 // LCD instructions 
 
 typedef enum
@@ -168,6 +176,7 @@ struct STGpioConfig
 //-----------------------------------------------------------------------------
 
 static uint8_t bInit = 0;
+static TLcdInfo lcd = {0,0};
 
 const struct STGpioConfig stGpioLcdCfg[] = 
 {
@@ -308,16 +317,6 @@ void Lcd4480WriteEN( uint8_t bData )
         delay(2);           \
     } while( 0 )
     
-
-
-//void Lcd4480PulseEN( void )
-//{
-//    Lcd4480WriteEN(1);
-//    delay(20);
-//    Lcd4480WriteEN(0);
-//    delay(20);
-//}
-
 //-----------------------------------------------------------------------------
 
 void Lcd4480WriteRS( RS_TYPE rs )
@@ -389,7 +388,7 @@ void Lcd4480WriteCmd( uint8_t cmd )
 
 //-----------------------------------------------------------------------------
 
-LCD_STATUS Lcd4480Init( void )
+LCD_STATUS Lcd4480Init( uint8_t bLin, uint8_t bCol )
 {
     LCD_STATUS xRet = LCD_ERROR;
     
@@ -405,37 +404,40 @@ LCD_STATUS Lcd4480Init( void )
             GPIOPinWrite( stGpioLcdCfg[bCounter].dwBASE,stGpioLcdCfg[bCounter].dwPin, ~stGpioLcdCfg[bCounter].dwPin ); 
         }
         
-        delay( 100 );
         
-        /* Try to set 4bit mode */
-        Lcd4480WriteCmd4bit(0x03);
-        delay( 5 );
-        
-        /* Second try */
-        Lcd4480WriteCmd4bit(0x03);
-        delay( 5 );
+        if ( (bLin == 2) || (bLin == 4) )
+        {
+            lcd.bLin = bLin;
+            lcd.bCol = bCol;
+           
+            delay( 100 );
+            
+            /* Try to set 4bit mode */
+            Lcd4480WriteCmd4bit(0x03);
+            delay( 5 );
+            
+            /* Second try */
+            Lcd4480WriteCmd4bit(0x03);
+            delay( 5 );
 
-        /* Third goo! */
-        Lcd4480WriteCmd4bit(0x03);
-        delay( 5 );
-        
-        /* Set 4-bit interface */
-        Lcd4480WriteCmd4bit(0x02);
-        delay(1);
-        
-        Lcd4480WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
-        
-        Lcd4480WriteCmd( LCD_DISPLAY_ON );
-        
-        Lcd4480Clear( );
-        
-        Lcd4480WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
-                        
-        bInit = 1;
-        
-        Lcd4480BackLightOn();
-        Lcd4480BackLightOff();
-        
+            /* Third goo! */
+            Lcd4480WriteCmd4bit(0x03);
+            delay( 5 );
+            
+            /* Set 4-bit interface */
+            Lcd4480WriteCmd4bit(0x02);
+            delay(1);
+            
+            Lcd4480WriteCmd( LCD_FUNCTION_4BIT | LCD_FUNCTION_2LINE | LCD_FUNCTION_5X7 );
+            
+            Lcd4480WriteCmd( LCD_DISPLAY_ON );
+            
+            Lcd4480Clear( );
+            
+            Lcd4480WriteCmd( LCD_ENTRY_INCREASE | LCD_ENTRY_NOSHIFT );
+                            
+            bInit = 1;
+        }
     }
     
     return xRet;
@@ -443,14 +445,77 @@ LCD_STATUS Lcd4480Init( void )
 
 //-----------------------------------------------------------------------------
 
+uint8_t Lcd4480GetLin(void)
+{
+    return lcd.bLin;
+}
+
+//-----------------------------------------------------------------------------
+
+uint8_t Lcd4480GetCol(void)
+{
+    return lcd.bCol;
+}
+
+//-----------------------------------------------------------------------------
+
+uint8_t Lcd4480GetCurLin(void)
+{
+    return lcd.bCurLin;
+}
+
+//-----------------------------------------------------------------------------
+
+uint8_t Lcd4480GetCurCol(void)
+{
+    return lcd.bCurCol;
+}
+
+
+//-----------------------------------------------------------------------------
+
 LCD_STATUS Lcd4480Write( const char* pcMsg )
 {    
     while( *pcMsg != '\0' )
     {
-         Lcd4480DataWrite( *pcMsg++ );    
+        switch( *pcMsg )
+        {
+            case '\r': 
+            case '\n':  
+            {                
+            
+                lcd.bCurLin++;
+                if ( lcd.bCurLin == lcd.bLin )
+                    lcd.bCurLin = 0;
+                
+                lcd.bCurCol = 0;
+                
+                Lcd4480SetCursor( lcd.bCurLin, lcd.bCurCol );
+                pcMsg++;
+                break;
+            }
+
+            default:
+            {
+                lcd.bCurCol++;
+                if ( lcd.bCurCol == (lcd.bCol+1) )
+                {
+                    lcd.bCurCol = 0;
+                    lcd.bCurLin++;
+                    
+                    if ( lcd.bCurLin == lcd.bLin )
+                        lcd.bCurLin = 0;
+                    
+                    Lcd4480SetCursor( lcd.bCurLin, lcd.bCurCol );
+                    
+                }
+                
+                Lcd4480DataWrite( *pcMsg++ );    
+                break;
+            }
+        }
     }
     
-    delay( 1 );
     
     return LCD_OK;
 }
@@ -460,6 +525,7 @@ LCD_STATUS Lcd4480Write( const char* pcMsg )
 LCD_STATUS Lcd4480Clear( void )
 {
     Lcd4480WriteCmd( LCD_CLEAR_CMD );
+    Lcd4480SetCursor( 0, 0 );
     
     return LCD_OK;
 }
@@ -469,6 +535,9 @@ LCD_STATUS Lcd4480Clear( void )
 LCD_STATUS Lcd4480Home( void )
 {
     Lcd4480WriteCmd( LCD_HOME_CMD );
+    
+    lcd.bCurCol= 0;
+    lcd.bCurLin = 0;
     
     return LCD_OK;
 }
@@ -480,22 +549,22 @@ LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
     uint8_t data;
     LCD_STATUS xRet = LCD_OK;
  
-    switch (y)
+    switch (x)
     {
-        case 1:    // 1. Zeile
-            data = LCD_SET_DDADR + LCD_DDADR_LINE1 + x;
+        case 0:    // 1. Zeile
+            data = LCD_SET_DDADR + LCD_DDADR_LINE1 + y;
             break;
  
-        case 2:    // 2. Zeile
-            data = LCD_SET_DDADR + LCD_DDADR_LINE2 + x;
+        case 1:    // 2. Zeile
+            data = LCD_SET_DDADR + LCD_DDADR_LINE2 + y;
             break;
  
-        case 3:    // 3. Zeile
-            data = LCD_SET_DDADR + LCD_DDADR_LINE3 + x;
+        case 2:    // 3. Zeile
+            data = LCD_SET_DDADR + LCD_DDADR_LINE3 + y;
             break;
  
-        case 4:    // 4. Zeile
-            data = LCD_SET_DDADR + LCD_DDADR_LINE4 + x;
+        case 3:    // 4. Zeile
+            data = LCD_SET_DDADR + LCD_DDADR_LINE4 + y;
             break;
  
         default:
@@ -504,6 +573,8 @@ LCD_STATUS Lcd4480SetCursor( uint8_t x, uint8_t y )
  
     if ( xRet == LCD_OK )
     {
+        lcd.bCurLin = x;
+        lcd.bCurCol = y;
         Lcd4480WriteCmd( data );    
     }
     

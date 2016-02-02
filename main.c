@@ -13,6 +13,8 @@
 #include "util.h"
 #include "kbd_analog5.h"
 #include "lcd_hd4480.h"
+#include <stdio.h>
+#include <string.h>
 
 /*****************************************************************************/
 
@@ -24,6 +26,7 @@ uint32_t TaskReadKbAn( void* lpParam );
 
 uint32_t UsrLed2Off( void* lpParam );
 
+uint32_t UsrPrintText( void* lpParam );
 
 /*****************************************************************************/
 
@@ -46,12 +49,12 @@ int main()
     BrdLedsInit();  /* initialize the board leds engine                 */
     BrdKeyInit();   /* initialize the board keys engine                 */
     KbAnInit();     /* initialize the DFRobot analog keyboard engine    */
-    Lcd4480Init( );
+    Lcd4480Init( 2, 16 );
     
     Lcd4480BackLightOn();
     
-    Lcd4480Home();
-    //Lcd4480SetCursor( 0, 0 );
+    //Lcd4480Home();
+    Lcd4480SetCursor( 0, 0 );
     Lcd4480Write( "***EMBARCADOS***" );
     
     BrdLedsSetState( USR_LED0, 0 );
@@ -69,8 +72,63 @@ int main()
     
     TTimerRegisterCallBack( 10*TTIMER_1MS_INTERVAL, TimerPeriodic, TaskReadKbAn, NULL, &dwTimerHandle );
     TTimerStart( dwTimerHandle );
+
+    TTimerRegisterCallBack( TTIMER_1SEC_INTERVAL/3, TimerPeriodic, UsrPrintText, NULL, &dwTimerHandle );
+    TTimerStart( dwTimerHandle );
     
     for( ;; );
+}
+
+/******************************************************************************/
+
+uint32_t UsrPrintText( void* lpParam )
+{
+    static uint16_t wCounter = 0;
+    static char cDispOut[7] = {0};
+    static uint8_t stPrintText = 0;
+    
+    switch( stPrintText )
+    {
+        case  0:
+        {
+            stPrintText = 1;
+            break;
+        }
+        
+        case  1:
+        {
+            Lcd4480Clear();
+            stPrintText = 2;
+            break;
+        }
+                    
+        
+        case  2: 
+        {
+            memset( cDispOut, 0, sizeof( cDispOut ));
+            sprintf( cDispOut, "%06d", wCounter );
+            stPrintText = 3;
+            break;
+        }
+        
+        case 3: 
+        {
+            uint8_t s = (Lcd4480GetCol() - sizeof(cDispOut)) >> 1;
+            Lcd4480SetCursor( Lcd4480GetCurLin() , s );
+            stPrintText = 4;
+            break;
+        }
+        
+        case  4:
+        {
+            Lcd4480Write( cDispOut );
+            wCounter++;
+            stPrintText = 2;
+            break;
+        }
+    }
+    
+    return 0;
 }
 
 /******************************************************************************/
