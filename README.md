@@ -1,8 +1,9 @@
 # DFRobotLCDShield
 Implementation of driver for analogic keyboard and LCD 16x2 to DFRobot LCD Shield
 
-Target board: TM4C1294-EK
-Compiler: Keil MDK
+* Target board: TM4C1294-EK
+
+* Compiler: Keil MDK
 
 | TM4C1294-EK | DFRobotLCDShield | Function    	        |
 |-------------|------------------|----------------------|
