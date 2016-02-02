@@ -7,12 +7,13 @@
  */
  
  
- /**
-  * @defgroup DFRobotShield
-  * @{
-  */
+/**
+* @defgroup DFRobotShield
+* @{
+*/
 
 #include "lcd_hd4480.h"
+#include "kbd_analog5.h"
 
 
 /**

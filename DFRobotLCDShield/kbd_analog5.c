@@ -186,15 +186,6 @@ uint8_t KbAnReadKey( KB_AN key )
 
 //-----------------------------------------------------------------------------
 
-KB_AN_STATUS_t KbAnRegisterCallBack( KB_AN key, callbackkban_func cb_kban )
-{
-    KB_AN_STATUS_t xRet = KB_AN_ST_ERROR;
-    
-    return xRet;
-}
-
-//-----------------------------------------------------------------------------
-
 uint32_t ReadKbAnTask( void* pParam )
 {
     static BYTE bKbAnState = 0;
