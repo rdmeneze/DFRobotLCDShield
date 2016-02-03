@@ -30,12 +30,6 @@
 // Note, however, that resetting the hardware doesn't reset the LCD, so we
 // can't assume that its in that state
 
-//
-//  > sample code 
-//  http://www.mikrocontroller.net/articles/AVR-GCC-Tutorial/LCD-Ansteuerung
-//  http://web.alfredstate.edu/weimandn/programming/lcd/ATmega328/LCD_code_gcc_4d.html
-//
-
 //-----------------------------------------------------------------------------
 
 // LCD module information 
