@@ -1,5 +1,5 @@
 # DFRobotLCDShield
-Implementation of driver for analogic keyboard and LCD 16x2 to DFRobot LCD Shield
+Implementation of driver for analogic keyboard and LCD 16x2 of DFRobot LCD Shield
 
 * Target board: TM4C1294-EK
 
