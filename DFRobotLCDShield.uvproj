@@ -522,16 +522,6 @@
               <FilePath>.\DFRobotLCDShield\DFRobotLcdShield.h</FilePath>
             </File>
             <File>
-              <FileName>lcd_hd4480.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\DFRobotLCDShield\lcd_hd4480.h</FilePath>
-            </File>
-            <File>
-              <FileName>lcd_hd4480.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\DFRobotLCDShield\lcd_hd4480.c</FilePath>
-            </File>
-            <File>
               <FileName>kbd_analog5.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\DFRobotLCDShield\kbd_analog5.h</FilePath>
@@ -540,6 +530,16 @@
               <FileName>kbd_analog5.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\DFRobotLCDShield\kbd_analog5.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd_hd44780.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\DFRobotLCDShield\lcd_hd44780.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd_hd44780.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\DFRobotLCDShield\lcd_hd44780.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1045,21 +1045,6 @@
               <FileName>watchdog.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\TivaWare\driverlib\watchdog.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>BMP180</GroupName>
-          <Files>
-            <File>
-              <FileName>BMP180.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\BMP180\BMP180.c</FilePath>
-            </File>
-            <File>
-              <FileName>BMP180.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\BMP180\BMP180.h</FilePath>
             </File>
           </Files>
         </Group>

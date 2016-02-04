@@ -49,7 +49,6 @@ int main()
     
     Lcd44780BackLightOn();
     
-    //Lcd44780Home();
     Lcd44780SetCursor( 0, 0 );
     Lcd44780Write( "***EMBARCADOS***" );
     
@@ -210,7 +209,6 @@ uint32_t TaskReadKbAn( void* lpParam )
     {
         if ( !TTimerRegisterCallBack( 0, TimerOneShot, UsrLed2Off, NULL, &dwUsrLed3TimeHandle ) )
         {
-            //TTimerStart( dwTimerHandle );
             bTaskReadKbAnInit = 1;
         }
     }
